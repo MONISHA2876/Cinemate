@@ -4,7 +4,7 @@ export default function Index() {
   return (
     <View className="flex-1 items-center justify-center bg-white">
       <Text className="text-xl font-bold text-light-200">
-        Welcome to Nativewind!
+        Search for your favorite movies!
       </Text>
     </View>
   );

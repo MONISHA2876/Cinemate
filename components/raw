@@ -1,0 +1,122 @@
+import React, { useEffect, useRef } from "react";
+import {
+  Animated,
+  Image,
+  ImageSourcePropType,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+interface CustomTabBarProps {
+  state: any;
+  descriptors: any;
+  navigation: any;
+  icons: Record<string, ImageSourcePropType>;
+}
+
+export default function CustomTabBar({
+  state,
+  descriptors,
+  navigation,
+  icons,
+}: CustomTabBarProps) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View
+      className="flex flex-row justify-between"
+      style={{ paddingBottom: insets.bottom + 10 }}
+    >
+      <View
+        className="
+            flex-row 
+            w-[90%] 
+            justify-around 
+            rounded-3xl 
+            p-3 
+            bg-white/15 
+            shadow-lg
+        "
+        style={{
+          backdropFilter: "blur(20px)",
+          elevation: 10,
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowRadius: 10,
+        }}
+      >
+        {state.routes.map((route: any, index: number) => {
+          const isFocused = state.index === index;
+          const { options } = descriptors[route.key];
+
+          const iconSource = icons[route.name];
+
+          // Animated values
+          const scale = useRef(new Animated.Value(isFocused ? 1.2 : 1)).current;
+          const translateY = useRef(
+            new Animated.Value(isFocused ? -8 : 0)
+          ).current;
+
+          useEffect(() => {
+            Animated.parallel([
+              Animated.timing(scale, {
+                toValue: isFocused ? 1.2 : 1,
+                duration: 250,
+                useNativeDriver: true,
+              }),
+              Animated.timing(translateY, {
+                toValue: isFocused ? -8 : 0,
+                duration: 250,
+                useNativeDriver: true,
+              }),
+            ]).start();
+          }, [isFocused]);
+
+          const onPress = () => {
+            if (!isFocused) navigation.navigate(route.name);
+          };
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              onPress={onPress}
+              activeOpacity={0.8}
+              className="flex-1 items-center justify-center"
+            >
+              <Animated.View
+                style={{
+                  transform: [{ scale }, { translateY }],
+                }}
+              >
+                <Image
+                  source={iconSource}
+                  style={{
+                    width: 26,
+                    height: 26,
+                    tintColor: isFocused ? "#6C63FF" : "#999",
+                  }}
+                  resizeMode="contain"
+                />
+              </Animated.View>
+
+              {isFocused && (
+                <Animated.Text
+                  style={{
+                    opacity: scale.interpolate({
+                      inputRange: [1, 1.2],
+                      outputRange: [0, 1],
+                    }),
+                  }}
+                  className="text-xs font-semibold mt-1 text-[#6C63FF]"
+                >
+                  {options.title}
+                </Animated.Text>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
