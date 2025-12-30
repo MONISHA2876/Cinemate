@@ -43,7 +43,11 @@ export default function Index() {
           </Text>
         ) : (
           <View>
-            <SearchBar />
+            <Link href="/search" asChild>
+              <TouchableOpacity activeOpacity={0.7}>
+                <SearchBar disabled />
+              </TouchableOpacity>
+            </Link>
             <Text className="mt-12 mb-6 text-white text-xl text-semibold text-base font-medium">
               Popular Movies
             </Text>
@@ -54,7 +58,22 @@ export default function Index() {
               data={movies?.results}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <Link href={`/movie/${item.id}`} asChild>
+                <Link
+                  href={{
+                    //@ts-ignore
+                    pathname: `/movie/${item.id}`,
+                    params: {
+                      id: item.id,
+                      poster_path: item.poster_path,
+                      title: item.title,
+                      date: item.release_date,
+                      star: item.vote_average.toFixed(1),
+                      popularity: item.vote_count,
+                      overview: item.overview,
+                    },
+                  }}
+                  asChild
+                >
                   <TouchableOpacity className="flex items-center w-[30%] mb-4">
                     <Image
                       source={{
